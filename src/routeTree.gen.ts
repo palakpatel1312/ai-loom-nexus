@@ -13,6 +13,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppSnapRouteImport } from './routes/_app/snap'
+import { Route as AppSettingsRouteImport } from './routes/_app/settings'
 import { Route as AppOnboardingRouteImport } from './routes/_app/onboarding'
 import { Route as AppDashboardRouteImport } from './routes/_app/dashboard'
 import { Route as AppCoachRouteImport } from './routes/_app/coach'
@@ -34,6 +35,11 @@ const IndexRoute = IndexRouteImport.update({
 const AppSnapRoute = AppSnapRouteImport.update({
   id: '/snap',
   path: '/snap',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppSettingsRoute = AppSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => AppRoute,
 } as any)
 const AppOnboardingRoute = AppOnboardingRouteImport.update({
@@ -58,6 +64,7 @@ export interface FileRoutesByFullPath {
   '/coach': typeof AppCoachRoute
   '/dashboard': typeof AppDashboardRoute
   '/onboarding': typeof AppOnboardingRoute
+  '/settings': typeof AppSettingsRoute
   '/snap': typeof AppSnapRoute
 }
 export interface FileRoutesByTo {
@@ -66,6 +73,7 @@ export interface FileRoutesByTo {
   '/coach': typeof AppCoachRoute
   '/dashboard': typeof AppDashboardRoute
   '/onboarding': typeof AppOnboardingRoute
+  '/settings': typeof AppSettingsRoute
   '/snap': typeof AppSnapRoute
 }
 export interface FileRoutesById {
@@ -76,13 +84,28 @@ export interface FileRoutesById {
   '/_app/coach': typeof AppCoachRoute
   '/_app/dashboard': typeof AppDashboardRoute
   '/_app/onboarding': typeof AppOnboardingRoute
+  '/_app/settings': typeof AppSettingsRoute
   '/_app/snap': typeof AppSnapRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/coach' | '/dashboard' | '/onboarding' | '/snap'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/coach'
+    | '/dashboard'
+    | '/onboarding'
+    | '/settings'
+    | '/snap'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/coach' | '/dashboard' | '/onboarding' | '/snap'
+  to:
+    | '/'
+    | '/auth'
+    | '/coach'
+    | '/dashboard'
+    | '/onboarding'
+    | '/settings'
+    | '/snap'
   id:
     | '__root__'
     | '/'
@@ -91,6 +114,7 @@ export interface FileRouteTypes {
     | '/_app/coach'
     | '/_app/dashboard'
     | '/_app/onboarding'
+    | '/_app/settings'
     | '/_app/snap'
   fileRoutesById: FileRoutesById
 }
@@ -130,6 +154,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppSnapRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/settings': {
+      id: '/_app/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AppSettingsRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/onboarding': {
       id: '/_app/onboarding'
       path: '/onboarding'
@@ -158,6 +189,7 @@ interface AppRouteChildren {
   AppCoachRoute: typeof AppCoachRoute
   AppDashboardRoute: typeof AppDashboardRoute
   AppOnboardingRoute: typeof AppOnboardingRoute
+  AppSettingsRoute: typeof AppSettingsRoute
   AppSnapRoute: typeof AppSnapRoute
 }
 
@@ -165,6 +197,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppCoachRoute: AppCoachRoute,
   AppDashboardRoute: AppDashboardRoute,
   AppOnboardingRoute: AppOnboardingRoute,
+  AppSettingsRoute: AppSettingsRoute,
   AppSnapRoute: AppSnapRoute,
 }
 
