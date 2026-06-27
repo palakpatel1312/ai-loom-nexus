@@ -11,97 +11,72 @@ async function callAI(messages: Msg[]) {
   if (!key) throw new Error("Missing LOVABLE_API_KEY");
   const res = await fetch(GATEWAY, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Lovable-API-Key": key,
-    },
+    headers: { "Content-Type": "application/json", "Lovable-API-Key": key },
     body: JSON.stringify({ model: MODEL, messages }),
   });
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`AI gateway ${res.status}: ${text.slice(0, 200)}`);
-  }
+  if (!res.ok) throw new Error(`AI gateway ${res.status}`);
   const data = await res.json();
-  const content: string = data?.choices?.[0]?.message?.content ?? "";
-  const tokens: number = data?.usage?.total_tokens ?? 0;
-  return { content, tokens };
+  return (data?.choices?.[0]?.message?.content ?? "") as string;
 }
 
-export const summarizeNote = createServerFn({ method: "POST" })
-  .inputValidator((data) =>
-    z.object({ title: z.string(), content: z.string().min(1) }).parse(data),
-  )
-  .handler(async ({ data }) => {
-    const { content, tokens } = await callAI([
+const DISHES = [
+  "Grilled Chicken Salad Bowl",
+  "Avocado Toast with Poached Egg",
+  "Salmon Teriyaki with Brown Rice",
+  "Mediterranean Quinoa Bowl",
+  "Vegetable Stir-Fry with Tofu",
+  "Greek Yogurt Parfait with Berries",
+  "Beef & Sweet Potato Hash",
+  "Chickpea Curry with Basmati Rice",
+];
+
+export const analyzeFood = createServerFn({ method: "POST" })
+  .inputValidator(() => ({}))
+  .handler(async () => {
+    const dish = DISHES[Math.floor(Math.random() * DISHES.length)];
+    const raw = await callAI([
       {
         role: "system",
         content:
-          "Summarize the user's note in exactly 3 concise bullet points. Respond with only the bullets, one per line, each starting with '- '. No preamble.",
+          'You are a nutrition AI. Given a dish name, output ONLY JSON: {"calories":int,"protein":int,"carbs":int,"fat":int,"tip":"one short healthy tip"}. No prose.',
       },
-      { role: "user", content: `Title: ${data.title}\n\n${data.content}` },
-    ]);
-    const bullets = content
-      .split("\n")
-      .map((l) => l.replace(/^[-*•]\s*/, "").trim())
-      .filter(Boolean)
-      .slice(0, 3);
-    return { bullets, tokens };
+      { role: "user", content: dish },
+    ]).catch(() => "");
+    let parsed: { calories: number; protein: number; carbs: number; fat: number; tip: string };
+    try {
+      const cleaned = raw.replace(/```json|```/g, "").trim();
+      const j = JSON.parse(cleaned);
+      parsed = {
+        calories: Number(j.calories) || 480,
+        protein: Number(j.protein) || 28,
+        carbs: Number(j.carbs) || 42,
+        fat: Number(j.fat) || 18,
+        tip: String(j.tip || "Pair with extra vegetables for added fiber."),
+      };
+    } catch {
+      parsed = { calories: 480, protein: 28, carbs: 42, fat: 18, tip: "Drink water before meals to aid digestion." };
+    }
+    return { dish, ...parsed };
   });
 
-export const chatCompletion = createServerFn({ method: "POST" })
+export const coachChat = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
         messages: z.array(
-          z.object({
-            role: z.enum(["user", "assistant"]),
-            content: z.string(),
-          }),
+          z.object({ role: z.enum(["user", "assistant"]), content: z.string() }),
         ),
       })
       .parse(data),
   )
   .handler(async ({ data }) => {
-    const { content, tokens } = await callAI([
+    const content = await callAI([
       {
         role: "system",
         content:
-          "You are NexusOS Assistant, a sharp, concise AI productivity copilot. Help users plan tasks, refine notes, and think clearly. Use markdown sparingly.",
+          "You are SnapCalorie Coach, a warm, evidence-based AI dietitian. Give concise, practical, encouraging answers in 2-4 short paragraphs. Use bullets only when listing meals or foods.",
       },
       ...data.messages,
     ]);
-    return { content, tokens };
-  });
-
-export const noteToTasks = createServerFn({ method: "POST" })
-  .inputValidator((data) =>
-    z.object({ title: z.string(), content: z.string().min(1) }).parse(data),
-  )
-  .handler(async ({ data }) => {
-    const { content, tokens } = await callAI([
-      {
-        role: "system",
-        content:
-          "Extract exactly 3 actionable tasks from the note. Respond as JSON: {\"tasks\":[{\"title\":\"...\",\"description\":\"...\",\"priority\":\"Low|Medium|High\"}]}. No markdown, just JSON.",
-      },
-      { role: "user", content: `Title: ${data.title}\n\n${data.content}` },
-    ]);
-    let tasks: Array<{ title: string; description: string; priority: "Low" | "Medium" | "High" }> = [];
-    try {
-      const cleaned = content.replace(/```json|```/g, "").trim();
-      const parsed = JSON.parse(cleaned);
-      tasks = (parsed.tasks ?? []).slice(0, 3).map((t: { title?: unknown; description?: unknown; priority?: unknown }) => ({
-        title: String(t.title ?? "Untitled task"),
-        description: String(t.description ?? ""),
-        priority:
-          t.priority === "High" || t.priority === "Low" ? t.priority : "Medium",
-      }));
-    } catch {
-      tasks = [
-        { title: "Review the latest note", description: "Re-read and capture key insights.", priority: "Medium" },
-        { title: "Identify next action", description: "Pick the single most useful next step.", priority: "High" },
-        { title: "Schedule follow-up", description: "Block time on the calendar to act on it.", priority: "Low" },
-      ];
-    }
-    return { tasks, tokens };
+    return { content };
   });

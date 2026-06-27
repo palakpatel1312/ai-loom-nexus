@@ -12,6 +12,7 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "@/components/ui/sonner";
+import { AuthProvider } from "@/lib/auth-context";
 
 function NotFoundComponent() {
   return (
@@ -79,15 +80,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "Lovable App" },
-      { name: "description", content: "Nexus AI Hub is a full-stack dashboard app for AI-powered productivity and task management." },
+      { name: "description", content: "SnapCalorie — AI Nutritionist that tracks calories, macros, and water with a single snap." },
       { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Nexus AI Hub is a full-stack dashboard app for AI-powered productivity and task management." },
+      { property: "og:title", content: "SnapCalorie — AI Nutritionist" },
+      { property: "og:description", content: "Track calories and macros instantly with your camera, powered by an AI dietitian." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
-      { name: "twitter:title", content: "Lovable App" },
-      { name: "twitter:description", content: "Nexus AI Hub is a full-stack dashboard app for AI-powered productivity and task management." },
+      { name: "twitter:title", content: "SnapCalorie — AI Nutritionist" },
+      { name: "twitter:description", content: "Track calories and macros instantly with your camera, powered by an AI dietitian." },
       { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/ec2fb556-3b8e-480a-93da-bf99335fd253/id-preview-3a05b05b--a2f819fc-ead6-4906-b1c6-cf2a3af5e998.lovable.app-1782537736412.png" },
       { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/ec2fb556-3b8e-480a-93da-bf99335fd253/id-preview-3a05b05b--a2f819fc-ead6-4906-b1c6-cf2a3af5e998.lovable.app-1782537736412.png" },
     ],
@@ -123,9 +124,11 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
-      <Toaster position="top-right" theme="dark" richColors />
+      <AuthProvider>
+        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+        <Outlet />
+        <Toaster position="top-center" theme="dark" richColors />
+      </AuthProvider>
     </QueryClientProvider>
   );
 }
