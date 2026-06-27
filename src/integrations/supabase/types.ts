@@ -14,7 +14,114 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      food_logs: {
+        Row: {
+          calories: number
+          carbs: number
+          dish: string
+          fat: number
+          id: string
+          logged_at: string
+          protein: number
+          tip: string | null
+          user_id: string
+        }
+        Insert: {
+          calories: number
+          carbs?: number
+          dish: string
+          fat?: number
+          id?: string
+          logged_at?: string
+          protein?: number
+          tip?: string | null
+          user_id: string
+        }
+        Update: {
+          calories?: number
+          carbs?: number
+          dish?: string
+          fat?: number
+          id?: string
+          logged_at?: string
+          protein?: number
+          tip?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          age: number | null
+          calorie_goal: number
+          carbs_goal: number
+          created_at: string
+          diet: string | null
+          fat_goal: number
+          full_name: string | null
+          gender: string | null
+          goal: string | null
+          height_cm: number | null
+          id: string
+          onboarded: boolean
+          protein_goal: number
+          updated_at: string
+          weight_kg: number | null
+        }
+        Insert: {
+          age?: number | null
+          calorie_goal?: number
+          carbs_goal?: number
+          created_at?: string
+          diet?: string | null
+          fat_goal?: number
+          full_name?: string | null
+          gender?: string | null
+          goal?: string | null
+          height_cm?: number | null
+          id: string
+          onboarded?: boolean
+          protein_goal?: number
+          updated_at?: string
+          weight_kg?: number | null
+        }
+        Update: {
+          age?: number | null
+          calorie_goal?: number
+          carbs_goal?: number
+          created_at?: string
+          diet?: string | null
+          fat_goal?: number
+          full_name?: string | null
+          gender?: string | null
+          goal?: string | null
+          height_cm?: number | null
+          id?: string
+          onboarded?: boolean
+          protein_goal?: number
+          updated_at?: string
+          weight_kg?: number | null
+        }
+        Relationships: []
+      }
+      water_logs: {
+        Row: {
+          day: string
+          glasses: number
+          user_id: string
+        }
+        Insert: {
+          day?: string
+          glasses?: number
+          user_id: string
+        }
+        Update: {
+          day?: string
+          glasses?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
