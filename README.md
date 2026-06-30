@@ -1,1 +1,1 @@
-https://palakpatel1312.github.io/ai-loom-nexus/
+https://ai-loom-nexus.lovable.app
